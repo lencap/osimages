@@ -1,0 +1,48 @@
+{
+  "variables": {
+    "disk_size": "8192",
+    "http_directory": "./",
+    "iso_checksum_type": "sha256",
+    "iso_checksum": "38d5d51d9d100fd73df031ffd6bd8b1297ce24660dc8c13a3b8b4534a4bd291c",
+    "iso_url": "https://mirror.umd.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso",
+    "ssh_password": "vagrant",
+    "ssh_username": "vagrant"
+},
+  "builders": [
+    {
+      "type": "parallels-iso",
+      "vm_name": "centos7.6.1810-parallels",
+      "guest_os_type": "centos7",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_password": "{{user `ssh_password`}}",
+      "disk_size": "{{user `disk_size`}}",
+      "http_directory": "{{user `http_directory`}}",
+      "parallels_tools_flavor": "lin",
+      "ssh_timeout": "600s",
+      "boot_command": [
+        "<esc><wait>",
+        "linux ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg",
+        "<enter><wait>"
+      ],
+        "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+      "prlctl": [
+        ["set", "{{.Name}}", "--memsize", "1024"],
+        ["set", "{{.Name}}", "--cpus", "1"]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo yum -y install checkpolicy selinux-policy-devel",
+        "sudo mount -o loop /home/vagrant/prl-tools-lin.iso /mnt",
+        "sudo /mnt/install --install-unattended",
+        "sudo umount /mnt"
+      ]
+    }    
+  ]
+}

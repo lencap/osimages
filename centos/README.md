@@ -25,5 +25,8 @@ then clean up with:
 ## Notes
 The CentOS8 template is also included. 
 
-## Amazon AMI
+## Parallels
+To create CentOS Parallels PVM images [read this README](https://github.com/lencap/osimages/blob/master/centos/PVM.md)
+
+## Amazon
 To create CentOS Amazon AMI [read this README](https://github.com/lencap/osimages/blob/master/centos/AMI.md)
