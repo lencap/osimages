@@ -24,3 +24,6 @@ then clean up with:
 
 ## Notes
 The CentOS8 template is also included. 
+
+## Amazon AMI
+To create CentOS Amazon AMI [read this README](https://github.com/lencap/osimages/blob/master/centos/AMI.md)
