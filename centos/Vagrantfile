@@ -1,0 +1,15 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure("2") do |config|
+  config.vm.hostname = "centos7"
+  config.vm.box = "centos7"
+  config.vm.box_url = "file://centos7.box"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.provider "virtualbox" do |v|
+    v.name = "centos7"
+    v.memory = "4096"
+    v.cpus = "2"
+    v.default_nic_type = "virtio"
+    v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]    
+  end
+end
