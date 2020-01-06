@@ -5,13 +5,13 @@ These are [Packer](http://www.packer.io/) templates to create CentOS [Vagrant bo
 ## Prerequisites
 This work has been tested on macOS v10.15.2. Make sure you install at least the following versions of these applications:
   * VirtualBox v6.1.0
-  * Packer v1.4.5
+  * Packer v1.5.1
   * Vagrant v2.2.6
 
 ## Getting Started
 Validate the CentOS7 image template file; then build it validation is successful:
-  * `packer validate centos7.json`
-  * `packer build centos7.json`
+  * `packer validate centos7.7.1908.json`
+  * `packer build centos7.7.1908.json`
 
 ## Test
 To test the Vagrant box image, you can run:
@@ -20,7 +20,7 @@ To test the Vagrant box image, you can run:
 
 then clean up with:
   * `vagrant destroy`
-  * `vagrant box remove centos7`
+  * `vagrant box remove centos7.7.1908`
 
 ## Notes
 The CentOS8 template is also included. 
