@@ -1,11 +1,14 @@
 {
+  "variables": {
+    "home": "{{env `HOME`}}"
+  },
   "builders": [
     {
       "iso_url": "https://mirror.umd.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1908.iso",
       "iso_checksum": "9a2c47d97b9975452f7d582264e9fc16d108ed8252ac6816239a3b58cef5c53d",
       "iso_checksum_type": "sha256",
-      "vm_name": "centos7.7.1908",
-      "ssh_username": "user1",
+      "vm_name": "centos7.7.1908-vm",
+      "ssh_username": "vmuser",
       "ssh_password": "password",
       "type": "virtualbox-iso",
       "format": "ova",
@@ -17,16 +20,16 @@
       "sata_port_count": "4",
       "http_directory": "http",
       "boot_command": ["<esc><wait>linux ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ksvm.cfg<enter><wait>"],
-      "shutdown_command": "echo 'user1' | sudo -S shutdown -P now",
+      "shutdown_command": "echo 'vmuser' | sudo -S shutdown -P now",
       "memory": "1024",
       "guest_additions_path": "/tmp/VBoxGuestAdditions.iso",
-      "headless": "false"
+      "headless": "true"
     }
   ],
   "provisioners": [
     {
       "type": "file",
-      "source": "/Users/lcapella/.vm/vmbin/vmboot",
+      "source": "{{user `home`}}/.vm/vmnet",
       "destination": "/tmp/"
     },
     {
@@ -36,7 +39,7 @@
         "sudo sh /mnt/VBoxLinuxAdditions.run",
         "sudo umount /mnt",
         "sudo mkdir -p /root/bin",
-        "sudo cp /tmp/vmboot /root/bin/"
+        "sudo cp /tmp/vmnet /root/bin/"
       ]
     }
   ]
