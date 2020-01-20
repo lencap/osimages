@@ -1,7 +1,4 @@
 {
-  "variables": {
-    "home": "{{env `HOME`}}"
-  },
   "builders": [
     {
       "iso_url": "https://mirror.umd.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1908.iso",
@@ -23,13 +20,17 @@
       "shutdown_command": "echo 'vmuser' | sudo -S shutdown -P now",
       "memory": "1024",
       "guest_additions_path": "/tmp/VBoxGuestAdditions.iso",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--nictype1", "Virtio"],
+        ["modifyvm", "{{.Name}}", "--nictype2", "Virtio"]
+      ],    
       "headless": "true"
     }
   ],
   "provisioners": [
     {
       "type": "file",
-      "source": "{{user `home`}}/.vm/vmnet",
+      "source": "./http/vmnet",
       "destination": "/tmp/"
     },
     {
@@ -38,8 +39,7 @@
         "sudo mount -o loop /tmp/VBoxGuestAdditions.iso /mnt",
         "sudo sh /mnt/VBoxLinuxAdditions.run",
         "sudo umount /mnt",
-        "sudo mkdir -p /root/bin",
-        "sudo cp /tmp/vmnet /root/bin/"
+        "sudo mv /tmp/vmnet /usr/local/bin/"
       ]
     }
   ]
