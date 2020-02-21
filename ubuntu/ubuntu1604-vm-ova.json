@@ -1,0 +1,89 @@
+{
+  "builders": [
+    {
+      "headless": "false",
+      "iso_url": "https://mirror.umd.edu/ubuntu-iso/16.04/ubuntu-16.04.6-server-amd64.iso",
+      "iso_checksum": "16afb1375372c57471ea5e29803a89a5a6bd1f6aabea2e5e34ac1ab7eb9786ac",
+      "iso_checksum_type": "sha256",
+      "vm_name": "ubuntu1604-vm",
+      "ssh_username": "vmuser",
+      "ssh_password": "password",
+      "ssh_timeout": "10m",
+      "type": "virtualbox-iso",
+      "format": "ova",
+      "guest_os_type": "Ubuntu_64",
+      "boot_wait": "5s",
+      "disk_size": "8192",
+      "hard_drive_interface": "sata",
+      "sata_port_count": "4",
+      "http_directory": "http",
+      "boot_command": [
+        "<enter><wait>",
+        "<f6><esc>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "/install/vmlinuz noapic <wait>",
+        "auto <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-setup/layoutcode=us <wait>",
+        "console-setup/modelcode=pc105 <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "debian-installer=en_US <wait>",
+        "fb=false <wait>",
+        "initrd=/install/initrd.gz <wait>",
+        "kbd-chooser/method=us <wait>",
+        "keyboard-configuration/layout=USA <wait>",
+        "keyboard-configuration/variant=USA <wait>",
+        "locale=en_US <wait>",
+        "netcfg/get_domain=vm <wait>",
+        "netcfg/get_hostname=ubuntu1604-vm <wait>",
+        "grub-installer/bootdev=/dev/sda <wait>",
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed1604.cfg ",
+        "-- <wait>",
+        "<enter><wait>"
+      ],
+      "shutdown_command": "echo 'password' | sudo -S shutdown -P now",
+      "memory": "1024",
+      "guest_additions_path": "/tmp/VBoxGuestAdditions.iso",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--nictype1",
+          "Virtio"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--nictype2",
+          "Virtio"
+        ]
+      ]   
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./http/vmnet",
+      "destination": "/tmp/"
+    },    
+    {
+      "type": "shell",
+      "environment_vars": [
+        "DEBIAN_FRONTEND=noninteractive",
+        "UPDATE=true",
+        "DISABLE_IPV6=true",
+        "SSH_USERNAME=vmuser",
+        "SSH_PASSWORD=password"
+      ],      
+      "execute_command": "echo 'password' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "expect_disconnect": true,
+      "scripts": [
+        "scripts/setup.sh",
+        "scripts/cleanup.sh"
+      ]
+    }
+  ]
+}
