@@ -81,6 +81,7 @@
       "execute_command": "echo 'password' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
       "expect_disconnect": true,
       "scripts": [
+        "scripts/update.sh",
         "scripts/setup.sh",
         "scripts/cleanup.sh"
       ]

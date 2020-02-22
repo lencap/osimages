@@ -1,4 +1,5 @@
 #!/bin/bash -eu
+# cleanup.sh
 
 SSH_USER=${SSH_USERNAME:-vmuser}
 
@@ -42,3 +43,5 @@ sync   # So Packer doesn't quit too early, before the large file is deleted
 
 echo "==> Disk usage after cleanup"
 df -h
+
+exit 0

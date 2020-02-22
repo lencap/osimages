@@ -1,68 +1,64 @@
 #!/bin/bash
 # /usr/local/bin/vmnet
-# Bring up the network as per https://github.com/lencap/vm utility
+# Set up network and hostname. See https://github.com/lencap/vm
 
+osDist=$(hostnamectl | awk '/Operating System/ {print $3}' | tr 'A-Z' 'a-z')
 vmName=$(sudo VBoxControl guestproperty get '/vm/name' | awk '/^Value/ {print $2}')
 vmIP=$(sudo VBoxControl guestproperty get '/vm/ip' | awk '/^Value/ {print $2}')
-echo "Hostname  = [$vmName]"
-echo "IPAddress = [$vmIP]"
+echo "==> OS        = [$osDist]"
+echo "==> Hostname  = [$vmName]"
+echo "==> IPAddress = [$vmIP]"
 [[ -z "$vmName" ]] && echo "Error. VBoxControl guestproperty get '/vm/name' is empty." && exit 1
 [[ -z "$vmIP" ]] && echo "Error. VBoxControl guestproperty get '/vm/ip' is empty." && exit 1
 
-echo "Stopping network service ..."
-sudo systemctl stop network
+if [[ "$osDist" == "centos" ]]; then
+    echo "==> Configuring CentOS network and hostname"
+    sudo systemctl stop network
 
-nic0=eth0
-nic1=eth1
-nic0File=/etc/sysconfig/network-scripts/ifcfg-$nic0
-nic1File=/etc/sysconfig/network-scripts/ifcfg-$nic1
-delval () { sed -i "/${2}=/d" ${1} ; }
-setval () {
-  [[ ! -e "${1}" ]] && touch ${1}
-  if [[ -z "`grep ${2} ${1}`" ]]; then
-    echo "${2}=\"${3}\"" >> ${1}
-    return 0
-  fi
-  OLD=`grep "^${2}=" ${1} | awk -F'=' '{print $2}'`
-  sed -i "s;${2}=$OLD;${2}=\"${3}\";g" ${1}
-}
+    nic0=eth0 ; nic1=eth1
+    nic0File=/etc/sysconfig/network-scripts/ifcfg-$nic0
+    nic1File=/etc/sysconfig/network-scripts/ifcfg-$nic1
 
-echo "Configuring $nic0 with NAT networking"
-setval $nic0File DEVICE $nic0
-setval $nic0File BOOTPROTO none
-setval $nic0File PEERDNS yes
-setval $nic0File DNS1 10.0.2.3
-setval $nic0File GATEWAY 10.0.2.2
-setval $nic0File IPADDR 10.0.2.15
-setval $nic0File NETMASK 255.255.255.0
-setval $nic0File IPV6INIT no
-setval $nic0File NM_CONTROLLED no
-setval $nic0File ONBOOT yes
-setval $nic0File TYPE Ethernet
-setval $nic0File HWADDR `cat /sys/class/net/$nic0/address`
-setval /etc/sysconfig/network GATEWAY 10.0.2.2
-echo "Bringing up '$nic0' ..."
-sudo ifup $nic0
+    echo "==> VirtualBox Adapter 1 [NAT]: Configuring $nic0 as DHCP client"
+    echo "DEVICE=\"$nic0\"" > $ nic0File          # Create new file
+    echo "BOOTPROTO=dhcp" >> $ nic0File
+    echo "ONBOOT=yes" >> $ nic0File
 
-echo "Configuring $nic1 with HostOnly networking and IP $vmIP"
-touch $nic1File
-cat /dev/null > $nic1File
-setval $nic1File DEVICE $nic1
-setval $nic1File BOOTPROTO none
-delval $nic1File PEERDNS
-delval $nic1File DNS1
-delval $nic1File GATEWAY
-setval $nic1File IPADDR $vmIP
-setval $nic1File NETMASK 255.255.255.0
-setval $nic1File IPV6INIT no
-setval $nic1File NM_CONTROLLED no
-setval $nic1File ONBOOT yes
-setval $nic1File TYPE Ethernet
-setval $nic1File HWADDR `cat /sys/class/net/$nic1/address`
-echo "Bringing up '$nic1' ..."
-sudo ifup $nic1
+    echo "==> VirtualBox Adapter 2 [HostOnly]: Configuring $nic1 with static IP $vmIP"
+    echo "DEVICE=\"$nic0\"" > $ nic0File          # Create new file
+    echo "BOOTPROTO=static" >> $ nic0File
+    echo "ONBOOT=yes" >> $ nic0File
+    echo "IPADDR=\"$vmIP\"" >> $ nic0File
+    echo "NETMASK=\"255.255.255.0\"" >> $ nic0File
 
-echo "Setting hostname to '$vmName' ..."
-sudo hostnamectl set-hostname $vmName
-echo "Restarting network service ..."
-sudo systemctl start network
+    sudo hostnamectl set-hostname $vmName
+    sudo systemctl start network
+elif [[ "$osDist" == "ubuntu" ]]; then
+    echo "==> Configuring Ubuntu network and hostname"
+    sudo systemctl stop networking
+    
+    nic0=enp0s3 ; nic1=enp0s8
+    nic0File=/etc/network/interfaces
+    nic1File=/etc/network/interfaces.d/20-${nic1}.cfg
+
+    echo "==> VirtualBox Adapter 1 [NAT]: Configuring $nic0 as DHCP client"
+    #echo "auto $nic0" > $nic0File                # Create new file
+    #echo "iface $nic0 inet dhcp" >> $nic0File 
+
+    echo "==> VirtualBox Adapter 2 [HostOnly]: Configuring $nic1 with static IP $vmIP"
+    echo "auto $nic1" > $nic1File                 # Create new file
+    echo "iface $nic1 inet static" >> $nic1File 
+    echo "address $vmIP" >> $nic1File
+    echo "netmask 255.255.255.0" >> $nic1File
+    #gtWay=${vmIP%.*}.1
+    #echo "gateway $gtWay" >> $nic1File
+    #echo "dns-nameservers 8.8.8.8 4.4.2.2" >> $nic1File
+
+    sudo hostnamectl set-hostname $vmName
+    sudo systemctl start networking
+else
+    echo "==> Unsupported OS. Giving up on network and hostname setup."
+    exit 1
+fi
+echo "==> Done"
+exit 0
