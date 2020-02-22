@@ -20,14 +20,15 @@ if [[ "$osDist" == "centos" ]]; then
     nic1File=/etc/sysconfig/network-scripts/ifcfg-$nic1
 
     echo "==> VirtualBox Adapter 1 [NAT]: Configuring $nic0 as DHCP client"
-    echo "DEVICE=\"$nic0\"" > $ nic0File          # Create new file
-    echo "BOOTPROTO=dhcp" >> $ nic0File
-    echo "ONBOOT=yes" >> $ nic0File
+    # Nothing to do; HDCP should have already set this up for NIC0
+    echo "DEVICE=\"$nic0\"" > $ nic0File
+    echo "BOOTPROTO=\"dhcp\"" >> $ nic0File
+    echo "ONBOOT=\"yes\"" >> $ nic0File
 
     echo "==> VirtualBox Adapter 2 [HostOnly]: Configuring $nic1 with static IP $vmIP"
-    echo "DEVICE=\"$nic0\"" > $ nic0File          # Create new file
-    echo "BOOTPROTO=static" >> $ nic0File
-    echo "ONBOOT=yes" >> $ nic0File
+    echo "DEVICE=\"$nic0\"" > $ nic0File
+    echo "BOOTPROTO=\"static\"" >> $ nic0File
+    echo "ONBOOT=\"yes\"" >> $ nic0File
     echo "IPADDR=\"$vmIP\"" >> $ nic0File
     echo "NETMASK=\"255.255.255.0\"" >> $ nic0File
 
@@ -42,17 +43,13 @@ elif [[ "$osDist" == "ubuntu" ]]; then
     nic1File=/etc/network/interfaces.d/20-${nic1}.cfg
 
     echo "==> VirtualBox Adapter 1 [NAT]: Configuring $nic0 as DHCP client"
-    #echo "auto $nic0" > $nic0File                # Create new file
-    #echo "iface $nic0 inet dhcp" >> $nic0File 
-
+    # Nothing to do; HDCP should have already set this up for NIC0
+    
     echo "==> VirtualBox Adapter 2 [HostOnly]: Configuring $nic1 with static IP $vmIP"
-    echo "auto $nic1" > $nic1File                 # Create new file
-    echo "iface $nic1 inet static" >> $nic1File 
+    echo "auto $nic1" > $nic1File
+    echo "iface $nic1 inet static" >> $nic1File
     echo "address $vmIP" >> $nic1File
     echo "netmask 255.255.255.0" >> $nic1File
-    #gtWay=${vmIP%.*}.1
-    #echo "gateway $gtWay" >> $nic1File
-    #echo "dns-nameservers 8.8.8.8 4.4.2.2" >> $nic1File
 
     sudo hostnamectl set-hostname $vmName
     sudo systemctl start networking
@@ -60,5 +57,8 @@ else
     echo "==> Unsupported OS. Giving up on network and hostname setup."
     exit 1
 fi
+echo "==> Updating /etc/hosts with: 127.0.1.1   $vmName"
+sed -i "/^127\.0\.1\.1.*/d" /etc/hosts
+echo "127.0.1.1       $vmName" >> /etc/hosts
 echo "==> Done"
 exit 0

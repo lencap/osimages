@@ -1,15 +1,16 @@
 #!/bin/bash -eu
 # cleanup.sh
 
+VM_NAME=${VM_NAME:-ubuntu}
 SSH_USER=${SSH_USERNAME:-vmuser}
 
-echo "==> Doing apt update and cache cleanup"
-apt -y autoremove --purge
-apt update
-apt clean
+echo "==> Running apt update and cache cleanup"
+apt-get -y autoremove --purge
+apt-get clean
 
-echo "==> Cleaning up tmp"
+echo "==> Clean up /tmp and hostname from system SSH keys"
 rm -rf /tmp/*
+sed -i "s/ root@.*$//" /etc/ssh/*.pub
 
 echo "==> Removing Bash history"
 unset HISTFILE
@@ -41,7 +42,8 @@ dd if=/dev/zero of=/EMPTY bs=1M || echo "dd exit code $? is suppressed"
 rm -f /EMPTY
 sync   # So Packer doesn't quit too early, before the large file is deleted
 
-echo "==> Disk usage after cleanup"
+echo "==> Disk usage report and final cleanup"
 df -h
+sed -i "/nameserver 8.8.8.8/d" /run/resolvconf/resolv.conf   # It was added in update.sh
 
 exit 0

@@ -9,15 +9,19 @@ systemctl mask apt-daily.service apt-daily-upgrade.service
 systemctl daemon-reload
 
 echo "==> Updating list of repositories"
-apt update
+echo "nameserver 8.8.8.8" >> /run/resolvconf/resolv.conf   # Gets removed in cleanup.sh 
+packerLog=/root/packer-apt-updates.log
+apt-get update > $packerLog
+printf "\n\n\n" >> $packerLog
 if [[ $UPDATE =~ true || $UPDATE =~ 1 ]]; then
     echo "==> Upgrading packages"
-    apt -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
+    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade >> $packerLog
 fi
-apt -y install --no-install-recommends build-essential linux-headers-generic ssh curl vim dkms
+printf "\n\n\n" >> $packerLog
+apt-get -y install --no-install-recommends build-essential linux-headers-generic ssh curl vim dkms >> $packerLog
 
 echo "==> Removing the release upgrader"
-apt -y purge ubuntu-release-upgrader-core
+apt-get -y purge ubuntu-release-upgrader-core
 rm -rf /var/lib/ubuntu-release-upgrader
 rm -rf /var/lib/update-manager
 
@@ -26,15 +30,16 @@ if [[ $DISABLE_IPV6 =~ true || $DISABLE_IPV6 =~ 1 ]]; then
     sed -i 's/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
 fi
 
-echo "==> Disable grub boot menu and splash screen"
-sed -i -e '/^GRUB_TIMEOUT=/aGRUB_RECORDFAIL_TIMEOUT=0' \
-    -e 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet nosplash"/' /etc/default/grub
+echo "==> Streamline grub boot settings"
+sed -i '/^GRUB_TIMEOUT=/aGRUB_RECORDFAIL_TIMEOUT=0' /etc/default/grub
+sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet nosplash"/' /etc/default/grub
+sed -i '/^GRUB_HIDDEN_TIMEOUT=/d' /etc/default/grub
 update-grub
 
-# WHY THIS?
-# echo "==> Shutting down the SSHD service and rebooting..."
-# systemctl stop sshd.service
-# nohup shutdown -r now < /dev/null > /dev/null 2>&1 &
-# sleep 120
+# It's still not clear why we need this reboot??
+echo "==> Shutting down the SSHD service and rebooting..."
+sudo systemctl stop sshd
+nohup shutdown -r now < /dev/null > /dev/null 2>&1 &
+sleep 120
 
 exit 0

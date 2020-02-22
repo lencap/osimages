@@ -1,4 +1,9 @@
 {
+  "variables": {
+    "vm_name": "ubuntu1604",
+    "ssh_user": "vmuser",
+    "ssh_pass": "password"
+  },
   "builders": [
     {
       "boot_command": [
