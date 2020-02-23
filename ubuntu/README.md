@@ -8,12 +8,12 @@ These templates have been tested on macOS v10.15.3. Make sure you install at lea
   * Packer v1.5.4
 
 ## Getting Started
-Validate the Ubuntu1804 template, then build the image:
+Validate the specific template, then build the image. For instance:
   * `packer validate ubuntu1804.json`
   * `packer build ubuntu1804.json`
 
 ## Test
-You can use the `vm` utility to test the OVA image:
+You can use the [vm utility](https://github.com/lencap/vm) to test the OVA image:
   * `vm create dev1 output-virtualbox-iso/ubuntu1804.ova`
   * `vm start dev1`
   * `vm ssh dev1`
