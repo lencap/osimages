@@ -1,87 +1,101 @@
 {
-    "variables": {
-        "ssh_username": "vagrant",
-        "ssh_fullname": "vagrant",
-        "ssh_password": "vagrant"
-    },
-    "builders": [
-        {
-            "type": "virtualbox-iso",
-            "vm_name": "ubuntu1910",
-            "guest_os_type": "Ubuntu_64",
-            "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/eoan/release/ubuntu-19.10-server-amd64.iso",
-            "iso_checksum_type": "sha256",
-            "iso_checksum": "921fd8b271c04aa86a321cc35b40e677f9b85f7903bf2204efb2389b0f0a64c1",
-            "boot_wait": "5s",
-            "ssh_password": "{{user `ssh_password`}}",
-            "ssh_username": "{{user `ssh_username`}}",
-            "ssh_wait_timeout": "10000s",
-            "disk_size": "8192",
-            "hard_drive_interface": "sata",
-            "http_directory": "http",
-            "boot_command": [
-                "<enter><wait>",
-                "<f6><esc>",
-                "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                "/install/vmlinuz noapic <wait>",
-                "initrd=/install/initrd.gz <wait>",
-                "preseed/url=http://{{.HTTPIP}}:{{.HTTPPort}}/preseed.cfg <wait>",
-                "debian-installer=en_US auto locale=en_US kbd-chooser/method=us <wait>",
-                "hostname=ubuntu1910 <wait>",
-                "grub-installer/bootdev=/dev/sda <wait>",
-                "fb=false debconf/frontend=noninteractive <wait>",
-                "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA <wait>",
-                "keyboard-configuration/variant=USA console-setup/ask_detect=false <wait>",
-                "passwd/user-fullname={{user `ssh_fullname`}} <wait>",
-                "passwd/user-password={{user `ssh_password`}} <wait>",
-                "passwd/user-password-again={{user `ssh_password`}} <wait>",
-                "passwd/username={{user `ssh_username`}} <wait>",
-                "-- <enter><wait>"
-            ],
-            "shutdown_command": "echo '{{user `ssh_password`}}' | sudo -S shutdown -P now",
-            "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
-            "vboxmanage": [
-                ["modifyvm", "{{.Name}}", "--memory", "4096"],
-                ["modifyvm", "{{.Name}}", "--cpus", "2"],
-                ["modifyvm", "{{.Name}}", "--nictype1", "virtio"],
-                ["modifyvm", "{{.Name}}", "--audio", "none"],
-                ["modifyvm", "{{.Name}}", "--usb", "off"],
-                ["modifyvm", "{{.Name}}", "--vrde", "off"],
-                ["modifyvm", "{{.Name}}", "--vram", "12"]
-            ],
-            "headless": "false"
-        }
-    ],
-    "provisioners": [
-        {
-            "type": "shell",
-            "environment_vars": [
-                "DEBIAN_FRONTEND=noninteractive",
-                "UPDATE=true",
-                "DISABLE_IPV6=true",
-                "SSH_USERNAME={{user `ssh_username`}}",
-                "SSH_PASSWORD={{user `ssh_password`}}"
-            ],
-            "execute_command": "echo '{{user `ssh_password`}}'|{{.Vars}} sudo -E -S bash '{{.Path}}'",
-            "expect_disconnect": true,
-            "scripts": [
-                "scripts/update.sh",
-                "scripts/vagrant.sh",
-                "scripts/virtualbox.sh",
-                "scripts/motd.sh",
-                "scripts/minimize.sh",
-                "scripts/cleanup.sh"
-            ]
-        }
-    ],
-    "post-processors": [
-        {
-            "type": "vagrant",
-            "vagrantfile_template": "./Vagrantfile_1910",
-            "output": "./ubuntu1910.box"
-        }
-    ]
+  "variables": {
+    "vm_name": "ubuntu1910",
+    "ssh_user": "vmuser",
+    "ssh_pass": "password"
+  },
+  "builders": [
+    {
+      "headless": "true",
+      "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/eoan/release/ubuntu-19.10-server-amd64.iso",
+      "iso_checksum": "921fd8b271c04aa86a321cc35b40e677f9b85f7903bf2204efb2389b0f0a64c1",
+      "iso_checksum_type": "sha256",
+      "vm_name": "{{user `vm_name`}}",
+      "ssh_username": "{{user `ssh_user`}}",
+      "ssh_password": "{{user `ssh_pass`}}",
+      "ssh_timeout": "10m",
+      "type": "virtualbox-iso",
+      "format": "ova",
+      "guest_os_type": "Ubuntu_64",
+      "boot_wait": "5s",
+      "disk_size": "8192",
+      "hard_drive_interface": "sata",
+      "sata_port_count": "4",
+      "http_directory": "http",
+      "boot_command": [
+        "<enter><wait>",
+        "<f6><esc>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "/install/vmlinuz noapic <wait>",
+        "auto <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-setup/layoutcode=us <wait>",
+        "console-setup/modelcode=pc105 <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "debian-installer=en_US <wait>",
+        "fb=false <wait>",
+        "initrd=/install/initrd.gz <wait>",
+        "kbd-chooser/method=us <wait>",
+        "keyboard-configuration/layout=USA <wait>",
+        "keyboard-configuration/variant=USA <wait>",
+        "locale=en_US <wait>",
+        "netcfg/get_domain=vm <wait>",
+        "netcfg/get_hostname={{user `vm_name`}} <wait>",
+        "grub-installer/bootdev=/dev/sda <wait>",
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+        "-- <wait>",
+        "<enter><wait>"
+      ],
+      "shutdown_command": "echo '{{user `ssh_pass`}}' | sudo -S shutdown -P now",
+      "memory": "2048",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--nictype1",
+          "Virtio"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--natdnsproxy1",
+          "on"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--nictype2",
+          "Virtio"
+        ]
+      ]   
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./scripts/vmnet",
+      "destination": "/home/{{user `ssh_user`}}/"
+    },    
+    {
+      "type": "shell",
+      "environment_vars": [
+        "DEBIAN_FRONTEND=noninteractive",
+        "UPDATE=true",
+        "DISABLE_IPV6=true",
+        "VM_NAME={{user `vm_name`}}",
+        "SSH_USERNAME={{user `ssh_user`}}",
+        "SSH_PASSWORD={{user `ssh_pass`}}"
+      ],      
+      "execute_command": "echo '{{user `ssh_pass`}}' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "expect_disconnect": true,
+      "scripts": [
+        "scripts/update.sh",
+        "scripts/setup.sh",
+        "scripts/cleanup.sh"
+      ]
+    }
+  ]
 }

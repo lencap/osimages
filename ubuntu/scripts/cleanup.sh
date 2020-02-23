@@ -1,22 +1,26 @@
 #!/bin/bash -eu
+# cleanup.sh
 
-SSH_USER=${SSH_USERNAME:-vagrant}
+VM_NAME=${VM_NAME:-ubuntu}
+SSH_USER=${SSH_USERNAME:-vmuser}
 
-echo "==> Cleaning up tmp"
+echo "==> Running apt update and cache cleanup"
+apt-get -y autoremove --purge
+apt-get clean
+
+echo "==> Clean up /tmp and hostname from system SSH keys"
 rm -rf /tmp/*
+sed -i "s/ root@.*$//" /etc/ssh/*.pub
 
-echo "==> Installed packages"
-dpkg --get-selections | grep -v deinstall
-
-# Remove Bash history
+echo "==> Removing Bash history"
 unset HISTFILE
 rm -f /root/.bash_history
 rm -f /home/${SSH_USER}/.bash_history
 
-echo "==> Clearing log files"
+echo "==> Truncating log files"
 find /var/log -type f -exec truncate --size=0 {} \;
 
-echo '==> Clear out swap and disable until reboot'
+echo "==> Clear out swap and disable until reboot"
 set +e
 swapuuid=$(blkid -o value -l -s UUID -t TYPE=swap)
 case "$?" in
@@ -33,10 +37,12 @@ if [ "x$swapuuid" != "x" ]; then
     mkswap -U $swapuuid $swappart
 fi
 
-# Zero out the free space to save space in the final image
+echo "==> Zeroing out the free disk space to save space in the final image"
 dd if=/dev/zero of=/EMPTY bs=1M || echo "dd exit code $? is suppressed"
 rm -f /EMPTY
-sync
+sync   # So Packer doesn't quit too early, before the large file is deleted
 
-echo "==> Disk usage after cleanup"
+echo "==> Disk usage report"
 df -h
+
+exit 0

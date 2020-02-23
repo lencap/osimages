@@ -1,0 +1,74 @@
+#!/bin/bash
+# /usr/local/bin/vmnet
+# Set up network and hostname. See https://github.com/lencap/vm
+
+osDist=$(hostnamectl | awk '/Operating System/ {print $3}' | tr 'A-Z' 'a-z')
+vmName=$(sudo VBoxControl guestproperty get '/vm/name' | awk '/^Value/ {print $2}')
+vmIP=$(sudo VBoxControl guestproperty get '/vm/ip' | awk '/^Value/ {print $2}')
+echo "==> OS        = [$osDist]"
+echo "==> Hostname  = [$vmName]"
+echo "==> IPAddress = [$vmIP]"
+[[ -z "$vmName" ]] && echo "Error. VBoxControl guestproperty get '/vm/name' is empty." && exit 1
+[[ -z "$vmIP" ]] && echo "Error. VBoxControl guestproperty get '/vm/ip' is empty." && exit 1
+
+if [[ "$osDist" == "centos" ]]; then
+    echo "==> Configuring CentOS network"
+    sudo systemctl stop network
+    nic0=eth0 ; nic1=eth1
+    nic0File=/etc/sysconfig/network-scripts/ifcfg-$nic0
+    nic1File=/etc/sysconfig/network-scripts/ifcfg-$nic1
+    echo "==> VirtualBox Adapter 1 [NAT]: Configuring $nic0 as DHCP client"
+    # DHCP should have already configured NIC0, so below is redundant
+    echo "DEVICE=\"$nic0\"" > $ nic0File
+    echo "BOOTPROTO=\"dhcp\"" >> $ nic0File
+    echo "ONBOOT=\"yes\"" >> $ nic0File
+    echo "==> VirtualBox Adapter 2 [HostOnly]: Configuring $nic1 with static IP $vmIP"
+    echo "DEVICE=\"$nic0\"" > $ nic0File
+    echo "BOOTPROTO=\"static\"" >> $ nic0File
+    echo "ONBOOT=\"yes\"" >> $ nic0File
+    echo "IPADDR=\"$vmIP\"" >> $ nic0File
+    echo "NETMASK=\"255.255.255.0\"" >> $ nic0File
+    sudo systemctl start network
+elif [[ "$osDist" == "ubuntu" ]]; then
+    echo "==> Configuring Ubuntu network"
+    nic0=enp0s3 ; nic1=enp0s8
+    echo "==> VirtualBox Adapter 1 [NAT]: Configuring $nic0 as DHCP client"
+    echo "==> VirtualBox Adapter 2 [HostOnly]: Configuring $nic1 with static IP $vmIP"
+    osRel=$(hostnamectl | awk '/Operating System/ {print $4}') ; osRel=${osRel%%.*}
+    if [[ "$osRel" == "16" ]]; then               # Ubuntu 16.04
+        sudo systemctl stop networking
+        nic0File=/etc/network/interfaces
+        # DHCP should have already configured NIC0, so there's nothing to do with it
+        nic1File=/etc/network/interfaces.d/20-${nic1}.cfg
+        echo "auto $nic1" > $nic1File
+        echo "iface $nic1 inet static" >> $nic1File
+        echo "address $vmIP" >> $nic1File
+        echo "netmask 255.255.255.0" >> $nic1File
+        sudo systemctl start networking
+    else                                          # Newer Ubuntu use netplan
+        sudo systemctl stop systemd-networkd
+        sudo cat <<EOF > /etc/netplan/01-netcfg.yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    $nic0:
+      dhcp4: yes
+    $nic1:
+      addresses: [$vmIP/24]
+EOF
+        sudo systemctl start systemd-networkd
+        sudo netplan apply
+    fi
+else
+    echo "==> Unsupported OS. Giving up on network and hostname setup."
+    exit 1
+fi
+
+echo "==> Updating hostname"
+sudo hostnamectl set-hostname $vmName
+sed -i "/^127\.0\.1\.1.*/d" /etc/hosts
+echo "127.0.1.1       $vmName" >> /etc/hosts
+
+echo "==> Done"
+exit 0

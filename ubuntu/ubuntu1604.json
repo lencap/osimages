@@ -1,14 +1,14 @@
 {
   "variables": {
-    "vm_name": "ubuntu1804",
+    "vm_name": "ubuntu1604",
     "ssh_user": "vmuser",
     "ssh_pass": "password"
   },
   "builders": [
     {
       "headless": "true",
-      "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.4-server-amd64.iso",
-      "iso_checksum": "e2ecdace33c939527cbc9e8d23576381c493b071107207d2040af72595f8990b",
+      "iso_url": "https://mirror.umd.edu/ubuntu-iso/16.04/ubuntu-16.04.6-server-amd64.iso",
+      "iso_checksum": "16afb1375372c57471ea5e29803a89a5a6bd1f6aabea2e5e34ac1ab7eb9786ac",
       "iso_checksum_type": "sha256",
       "vm_name": "{{user `vm_name`}}",
       "ssh_username": "{{user `ssh_user`}}",

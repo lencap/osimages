@@ -1,4 +1,5 @@
 #!/bin/bash -eu
+# update.sh
 
 echo "==> Disabling apt.daily.service & apt-daily-upgrade.service"
 systemctl stop apt-daily.timer apt-daily-upgrade.timer
@@ -8,42 +9,36 @@ systemctl mask apt-daily.service apt-daily-upgrade.service
 systemctl daemon-reload
 
 echo "==> Updating list of repositories"
-apt-get update
+packerLog=/root/packer-apt-updates.log
+apt-get update > $packerLog
+printf "\n\n\n" >> $packerLog
 if [[ $UPDATE =~ true || $UPDATE =~ 1 ]]; then
     echo "==> Upgrading packages"
-    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
+    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade >> $packerLog
 fi
-apt-get -y install --no-install-recommends build-essential linux-headers-generic
-apt-get -y install --no-install-recommends ssh nfs-common curl git vim
+printf "\n\n\n" >> $packerLog
+apt-get -y install --no-install-recommends build-essential linux-headers-generic ssh curl vim dkms >> $packerLog
 
 echo "==> Removing the release upgrader"
 apt-get -y purge ubuntu-release-upgrader-core
 rm -rf /var/lib/ubuntu-release-upgrader
 rm -rf /var/lib/update-manager
 
-# Clean up the apt cache
-apt-get -y autoremove --purge
-apt-get clean
-
 if [[ $DISABLE_IPV6 =~ true || $DISABLE_IPV6 =~ 1 ]]; then
     echo "==> Disabling IPv6"
-    sed -i 's/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' \
-        /etc/default/grub
-    #update-grub
+    sed -i 's/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
 fi
 
-# Disable grub boot menu and splash screen
-sed -i -e '/^GRUB_TIMEOUT=/aGRUB_RECORDFAIL_TIMEOUT=0' \
-    -e 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet nosplash"/' \
-    /etc/default/grub
+echo "==> Streamline grub boot settings"
+sed -i '/^GRUB_TIMEOUT=/aGRUB_RECORDFAIL_TIMEOUT=0' /etc/default/grub
+sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet nosplash"/' /etc/default/grub
+sed -i '/^GRUB_HIDDEN_TIMEOUT=/d' /etc/default/grub
 update-grub
 
-# SSH tweaks
-echo "UseDNS no" >> /etc/ssh/sshd_config
-echo "GSSAPIAuthentication no" >> /etc/ssh/sshd_config
-
-echo "====> Shutting down the SSHD service and rebooting..."
-systemctl stop sshd.service
+# It's still not clear why we need this reboot??
+echo "==> Shutting down the SSHD service and rebooting..."
+sudo systemctl stop sshd
 nohup shutdown -r now < /dev/null > /dev/null 2>&1 &
 sleep 120
+
 exit 0
