@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 Vagrant.configure("2") do |config|
 
-  # Dev Host 1
+  # Dev1
   config.vm.define "dev1" do |dev1|
     dev1.vm.box = "centos7.6.1810-parallels"
     dev1.vm.box_url = "file://centos7.6.1810-parallels.box"
@@ -26,23 +26,17 @@ Vagrant.configure("2") do |config|
     # end
   end
 
-  # Dev Host 2
-  # config.vm.define "dev2" do |dev2|
-  #  dev2.vm.box = "centos7.6.1810-parallels"
-  #  dev2.vm.box_url = "file://centos7.6.1810-parallels.box"
-  #  dev2.vm.hostname = "dev2"
-  #  dev2.vm.network "forwarded_port", guest: 80, host: 8000
-  #  dev2.vm.provider "parallels" do |vb|
-  #    vb.name = "dev2"
-  #    vb.customize ["modifyvm", :id, "--memory", 1024]
-  #    vb.customize ["modifyvm", :id, "--cpus", 1]
-  #    vb.customize ["modifyvm", :id, "--audio", "none"]
-  #    vb.customize ["modifyvm", :id, "--usb", "off"]
-  #    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
-  #  end
-  #end
-
-  # Dev Host 3
-  # ... etc
+  # Dev2
+  # config.vm.hostname = "centos7"
+  # config.vm.box = "centos7"
+  # config.vm.box_url = "file://centos7.box"
+  # config.vm.synced_folder ".", "/vagrant", disabled: true
+  # config.vm.provider "virtualbox" do |v|
+  #  v.name = "centos7"
+  #  v.memory = "4096"
+  #  v.cpus = "2"
+  #  v.default_nic_type = "virtio"
+  #  v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]    
+  # end
 
 end
