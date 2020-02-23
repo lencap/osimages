@@ -42,8 +42,7 @@ dd if=/dev/zero of=/EMPTY bs=1M || echo "dd exit code $? is suppressed"
 rm -f /EMPTY
 sync   # So Packer doesn't quit too early, before the large file is deleted
 
-echo "==> Disk usage report and final cleanup"
+echo "==> Disk usage report"
 df -h
-sed -i "/nameserver 8.8.8.8/d" /run/resolvconf/resolv.conf   # It was added in update.sh
 
 exit 0

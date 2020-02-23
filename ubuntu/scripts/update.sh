@@ -9,7 +9,6 @@ systemctl mask apt-daily.service apt-daily-upgrade.service
 systemctl daemon-reload
 
 echo "==> Updating list of repositories"
-echo "nameserver 8.8.8.8" >> /run/resolvconf/resolv.conf   # Gets removed in cleanup.sh 
 packerLog=/root/packer-apt-updates.log
 apt-get update > $packerLog
 printf "\n\n\n" >> $packerLog
