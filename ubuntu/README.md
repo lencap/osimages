@@ -1,4 +1,4 @@
-## Ubuntu images creation templates
+## Ubuntu Templates
 
 These are [Packer](http://www.packer.io/) templates to create Ubuntu Linux OVA images for the [VirtualBox](https://www.virtualbox.org/) provider.
 
