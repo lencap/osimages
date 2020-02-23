@@ -44,8 +44,13 @@ chmod 0600 /home/$SSH_USER/.ssh/authorized_keys
 chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/.ssh
 
 echo "==> Setting /etc/rc.local to call vmnet on bootup"
-sed -i "/exit 0/d" /etc/rc.local
-chmod +x /etc/rc.local
+if [[ -e /etc/rc.local ]]; then
+    sed -i "/exit 0/d" /etc/rc.local
+else
+    echo "#!/bin/bash" > /etc/rc.local      # Ubuntu 18.04 doesn't have one
+fi
 echo /usr/local/bin/vmnet >> /etc/rc.local
+echo "exit 0" >> /etc/rc.local
+chmod +x /etc/rc.local
 
 exit 0
