@@ -9,15 +9,15 @@ systemctl mask apt-daily.service apt-daily-upgrade.service
 systemctl daemon-reload
 
 echo "==> Updating list of repositories"
-packerLog=/root/packer-apt-updates.log
-apt-get update > $packerLog
-printf "\n\n\n" >> $packerLog
+plog=/root/packer.log
+apt-get update > $plog
+printf "\n\n\n" >> $plog
 if [[ $UPDATE =~ true || $UPDATE =~ 1 ]]; then
     echo "==> Upgrading packages"
-    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade >> $packerLog
+    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade >> $plog
 fi
-printf "\n\n\n" >> $packerLog
-apt-get -y install --no-install-recommends build-essential linux-headers-generic ssh curl vim dkms >> $packerLog
+printf "\n\n\n" >> $plog
+apt-get -y install --no-install-recommends build-essential linux-headers-generic ssh curl vim dkms >> $plog
 
 echo "==> Removing the release upgrader"
 apt-get -y purge ubuntu-release-upgrader-core
@@ -35,8 +35,8 @@ sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet nospl
 sed -i '/^GRUB_HIDDEN_TIMEOUT=/d' /etc/default/grub
 update-grub
 
-# It's still not clear why we need this reboot??
 echo "==> Shutting down the SSHD service and rebooting..."
+# This reboot is required because the kernel and grub were updated
 sudo systemctl stop sshd
 nohup shutdown -r now < /dev/null > /dev/null 2>&1 &
 sleep 120

@@ -43,14 +43,28 @@ EOF
 chmod 0600 /home/$SSH_USER/.ssh/authorized_keys
 chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/.ssh
 
-echo "==> Setting /etc/rc.local to call vmnet on bootup"
-if [[ -e /etc/rc.local ]]; then
-    sed -i "/exit 0/d" /etc/rc.local
+echo "Setting up bashrc and vimrc"
+echo "alias h='history'" >> /root/.bashrc
+cat <<EOF > /root/.vimrc
+syntax on
+hi comment ctermfg=blue
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
+set ruler
+EOF
+chown -R root:root /root/.vimrc
+
+echo "==> Setting rc.local to call vmnet on bootup"
+rcFile=/etc/rc.local
+if [[ -e $rcFile ]]; then
+    sed -i "/exit 0/d" $rcFile
 else
-    echo "#!/bin/bash" > /etc/rc.local      # Ubuntu 18.04 doesn't have one
+    echo "#!/bin/bash" > $rcFile      # Ubuntu 18.04 doesn't have one
 fi
-echo /usr/local/bin/vmnet >> /etc/rc.local
-echo "exit 0" >> /etc/rc.local
-chmod +x /etc/rc.local
+echo "logger \"Running /usr/local/bin/vmnet\"" >> $rcFile
+echo "/usr/local/bin/vmnet" >> $rcFile
+echo "exit 0" >> $rcFile
+chmod +x $rcFile
 
 exit 0
