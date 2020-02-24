@@ -30,3 +30,18 @@ To create CentOS Parallels PVM images [read this README](https://github.com/lenc
 
 ## Amazon
 To create CentOS Amazon AMI [read this README](https://github.com/lencap/osimages/blob/master/centos/AMI.md)
+
+## Vagrant
+To create Vagrant box you'll need to create a new template, based on one of these provided. You'll then need to make sure that:
+1. A `vagrant` user is created
+2. You add a post-processors stanza to the new template, like this:
+```
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "keep_input_artifact": true,
+      "output": "./centos7.7.1908.box",
+      "vagrantfile_template": "./Vagrantfile"
+    }
+  ]
+```

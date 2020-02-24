@@ -39,7 +39,7 @@
     {
       "type": "shell",
       "inline": [
-        "echo Other configs..."
+        "echo Do other configs..."
       ]
     }
   ]

@@ -63,12 +63,6 @@
           "{{.Name}}",
           "--natdnsproxy1",
           "on"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--nictype2",
-          "Virtio"
         ]
       ]   
     }

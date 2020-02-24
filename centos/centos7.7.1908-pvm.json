@@ -1,8 +1,8 @@
 {
   "variables": {
     "vm_name": "centos7.7.1908",
-    "ssh_user": "vmuser",
-    "ssh_pass": "password"
+    "ssh_user": "vagrant",
+    "ssh_pass": "vagrant"
   },
   "builders": [
     {
@@ -12,11 +12,11 @@
       "iso_checksum_type": "sha256",
       "vm_name": "{{user `vm_name`}}",
       "ssh_username": "{{user `ssh_user`}}",
-      "ssh_password": "{{user `ssh_pass`}}",      
+      "ssh_password": "{{user `ssh_pass`}}",    
       "ssh_timeout": "10m",
-      "type": "virtualbox-iso",
-      "format": "ova",
-      "guest_os_type": "RedHat_64",
+      "type": "parallels-iso",
+      "parallels_tools_flavor": "lin",
+      "guest_os_type": "centos7",
       "ssh_pty": "true",
       "disk_size": "8192",
       "hard_drive_interface": "sata",
@@ -26,43 +26,42 @@
         "<esc><wait>linux ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg<enter><wait>"
       ],
       "shutdown_command": "echo '{{user `ssh_pass`}}' | sudo -S shutdown -P now",
-      "memory": "1024",
-      "vboxmanage": [
+      "prlctl": [
         [
-          "modifyvm",
+          "set",
+          "{{.Name}}",
+          "--memsize",
+          "1024"
+        ],
+        [
+          "set",
+          "{{.Name}}",
+          "--cpus",
+          "1"
+        ],
+        [
+          "set",
           "{{.Name}}",
           "--nictype1",
           "Virtio"
         ],
         [
-          "modifyvm",
+          "set",
           "{{.Name}}",
-          "--natdnsproxy1",
-          "on"
+          "--natdnsproxy1", "on"
         ]
       ]
     }
   ],
   "provisioners": [
     {
-      "type": "file",
-      "source": "./scripts/vmnet",
-      "destination": "/home/{{user `ssh_user`}}/"
-    },
-    {
       "type": "shell",
-      "environment_vars": [
-        "DISABLE_IPV6=true",
-        "VM_NAME={{user `vm_name`}}",
-        "SSH_USERNAME={{user `ssh_user`}}",
-        "SSH_PASSWORD={{user `ssh_pass`}}"
-      ],      
-      "execute_command": "echo '{{user `ssh_pass`}}' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
-      "expect_disconnect": true,
-      "scripts": [
-        "scripts/update.sh",
-        "scripts/setup.sh"
+      "inline": [
+        "sudo yum -y install checkpolicy selinux-policy-devel",
+        "sudo mount -o loop /home/vagrant/prl-tools-lin.iso /mnt",
+        "sudo /mnt/install --install-unattended",
+        "sudo umount /mnt"
       ]
-    }
+    }    
   ]
 }
