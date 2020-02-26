@@ -28,8 +28,7 @@ The CentOS8 template is also included.
 ## Parallels
 To create CentOS Parallels PVM images [read this README](https://github.com/lencap/osimages/blob/master/centos/PVM.md)
 
-## Amazon
-To create CentOS Amazon AMI [read this README](https://github.com/lencap/osimages/blob/master/centos/AMI.md)
+
 
 ## Vagrant
 To create Vagrant box you'll need to create a new template, based on one of these provided. You'll then need to make sure that:
