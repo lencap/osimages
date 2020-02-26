@@ -1,6 +1,8 @@
 ## OS Images
 
-These are [Packer](http://www.packer.io/) templates to create Ubuntu and CentOS Linux [VirtualBox](https://www.virtualbox.org/) OVA OS images. For the moment this is __only for macOS__.
+For the moment this is __only for macOS__ hosts.
+
+These are [Packer](http://www.packer.io/) templates to create Ubuntu and CentOS Linux OS images. The primary target is [VirtualBox](https://www.virtualbox.org/) OVA images, but you can also create other types as described below.
 
 ## Prerequisites
 These templates have been tested on macOS v10.15.3. Make sure you install at least the following versions of these applications:
@@ -8,14 +10,12 @@ These templates have been tested on macOS v10.15.3. Make sure you install at lea
   * Packer v1.5.4
 
 ## Getting Started
-Validate the specific template, then build the image. For instance:
+Validate a specific template, then build the image. For example:
 ```
 packer validate ubuntu1804.json
 packer build ubuntu1804.json
 ```
-
-## Test
-You can use the `vm` utility ([hosted here](https://github.com/lencap/vm)) to test the OVA image:
+Test the new OVA image with something like the `vm` utility ([hosted here](https://github.com/lencap/vm)) to test the OVA image:
 ```
 vm create dev1 output-virtualbox-iso/ubuntu1804.ova
 vm start dev1
@@ -23,11 +23,107 @@ vm ssh dev1
 vm imgimp output-virtualbox-iso/ubuntu1804.ova
 ```
 
-## Vagrant Options
-Alternatively, you can create Vagrant box images from the default OVA images these templates create by default. Although a sample Vagrantfile is included, how to do that Vagrant is not covered here - please read the Vagrant documentation. Of course, once you create Vagrant box files from these OVA one, you'll then be able to test with commands such as:
+## Vagrant
+[Vagrant](https://www.vagrantup.com/intro/index.html) is another open-source software product for building and maintaining portable virtual software development environments. To use these OS images with Vagrant you can either:
+
+1. Run `vagran package [etc]` against a VM created from one of these default OVA images, or
+
+2. Create a new template based on one of these templates, by adding a post-processors stanza, like this:
+```
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "keep_input_artifact": true,
+      "output": "./centos7.7.1908.box",
+      "vagrantfile_template": "./Vagrantfile"
+    }
+  ]
+```
+A Vagrantfile is included as example, but you can also read more on the Vagrant documentation.
+
+Of course, once you have a working Vagrantfile, you can test with commands such as:
 ```
 vagrant up
 vagrant ssh
 vagrant destroy
 vagrant box remove ubuntu1804
+```
+
+## Parallels
+Included there is also a [Packer](http://www.packer.io/) template to create a [Parallels](https://www.parallels.com/) [PVM](https://en.wikipedia.org/wiki/Parallel_Virtual_Machine) OS image, although this work is still in progress.
+
+To play with this further, make sure you install __Parallels v14.1.0__ or above, and the Parallels Virtualization SDK, as well as the Vagrant provider (if using Vagrant):
+```
+brew cask install parallels-virtualization-sdk
+vagrant plugin install vagrant-parallels
+```
+To build the images:
+```
+packer validate centos7.7.1908-pvm.json   # Confirm template is good
+packer build centos7.7.1908-pvm.json      # Build CentOS 7.7.1908 Parallels PVM machine
+```
+
+## Amazon
+[Packer](http://www.packer.io/) templates to create Amazon [AMIs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html).
+
+Tested on an Apple Mac running macOS v10.14.2, but should work on any Linux OS.
+
+* On target AWS account, create a `packer` IAM user, and attach below `PackerBuilder` policy.
+  ```
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "PackerBuilder",
+        "Effect": "Allow",
+        "Action": [
+          "ec2:AttachVolume",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:CopyImage",
+          "ec2:CopyImage",
+          "ec2:CreateImage",
+          "ec2:CreateKeypair",
+          "ec2:CreateSecurityGroup",
+          "ec2:CreateSnapshot",
+          "ec2:CreateTags",
+          "ec2:CreateVolume",
+          "ec2:DeleteKeypair",
+          "ec2:DeleteSecurityGroup",
+          "ec2:DeleteSnapshot",
+          "ec2:DeleteVolume",
+          "ec2:DeregisterImage",
+          "ec2:DescribeImageAttribute",
+          "ec2:DescribeImages",
+          "ec2:DescribeInstances",
+          "ec2:DescribeRegions",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeSnapshots",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeTags",
+          "ec2:DescribeVolumes",
+          "ec2:DetachVolume",
+          "ec2:GetPasswordData",
+          "ec2:ModifyImageAttribute",
+          "ec2:ModifyInstanceAttribute",
+          "ec2:ModifySnapshotAttribute",
+          "ec2:RegisterImage",
+          "ec2:RunInstances",
+          "ec2:StopInstances",
+          "ec2:TerminateInstances"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }
+  ```
+
+* Logon to target AWS account via CLI using above `packer` user.
+* Ensure `aws_source_ami` is the CentOS 7 image base you need.
+* Ensure `aws_security_group_ids` are valid EC2 Security Group IDs in your target AWS account 
+* STILL UNDER CONSTRUCTION ... there are more parameters
+
+Build image by doing the usual:
+```
+packer validate centos7.7.1908-ami.json  # First, confirm template is good
+packer build centos7.7.1908-ami.json     # Build CentOS 7 AMI
 ```
