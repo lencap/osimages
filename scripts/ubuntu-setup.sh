@@ -1,5 +1,5 @@
 #!/bin/bash -eu
-# setup.sh
+# ubuntu-setup.sh
 
 SSH_USER=${SSH_USERNAME:-vmuser}
 

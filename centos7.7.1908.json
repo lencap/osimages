@@ -1,18 +1,18 @@
 {
   "variables": {
-    "vm_name": "centos8.1.1911",
+    "vm_name": "centos7.7.1908",
     "ssh_user": "vmuser",
     "ssh_pass": "password"
   },
   "builders": [
     {
       "headless": "true",
-      "iso_url": "https://mirror.umd.edu/centos/8/isos/x86_64/CentOS-8.1.1911-x86_64-dvd1.iso",
-      "iso_checksum": "3ee3f4ea1538e026fff763e2b284a6f20b259d91d1ad5688f5783a67d279423b",
+      "iso_url": "https://mirror.umd.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1908.iso",
+      "iso_checksum": "9a2c47d97b9975452f7d582264e9fc16d108ed8252ac6816239a3b58cef5c53d",
       "iso_checksum_type": "sha256",
       "vm_name": "{{user `vm_name`}}",
       "ssh_username": "{{user `ssh_user`}}",
-      "ssh_password": "{{user `ssh_pass`}}",
+      "ssh_password": "{{user `ssh_pass`}}",      
       "ssh_timeout": "10m",
       "type": "virtualbox-iso",
       "format": "ova",
@@ -23,7 +23,7 @@
       "sata_port_count": "4",
       "http_directory": "http",
       "boot_command": [
-        "<esc><wait>linux ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks8.cfg<enter><wait>"
+        "<esc><wait>linux ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg<enter><wait>"
       ],
       "shutdown_command": "echo '{{user `ssh_pass`}}' | sudo -S shutdown -P now",
       "memory": "1024",
@@ -40,7 +40,7 @@
           "--natdnsproxy1",
           "on"
         ]
-      ]      
+      ]
     }
   ],
   "provisioners": [
@@ -60,8 +60,8 @@
       "execute_command": "echo '{{user `ssh_pass`}}' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
       "expect_disconnect": true,
       "scripts": [
-        "scripts/update.sh",
-        "scripts/setup.sh"
+        "scripts/centos-update.sh",
+        "scripts/centos-setup.sh"
       ]
     }
   ]

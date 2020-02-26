@@ -1,14 +1,14 @@
 {
   "variables": {
-    "vm_name": "ubuntu1910",
+    "vm_name": "ubuntu1604",
     "ssh_user": "vmuser",
     "ssh_pass": "password"
   },
   "builders": [
     {
       "headless": "true",
-      "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/eoan/release/ubuntu-19.10-server-amd64.iso",
-      "iso_checksum": "921fd8b271c04aa86a321cc35b40e677f9b85f7903bf2204efb2389b0f0a64c1",
+      "iso_url": "https://mirror.umd.edu/ubuntu-iso/16.04/ubuntu-16.04.6-server-amd64.iso",
+      "iso_checksum": "16afb1375372c57471ea5e29803a89a5a6bd1f6aabea2e5e34ac1ab7eb9786ac",
       "iso_checksum_type": "sha256",
       "vm_name": "{{user `vm_name`}}",
       "ssh_username": "{{user `ssh_user`}}",
@@ -86,9 +86,9 @@
       "execute_command": "echo '{{user `ssh_pass`}}' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
       "expect_disconnect": true,
       "scripts": [
-        "scripts/update.sh",
-        "scripts/setup.sh",
-        "scripts/cleanup.sh"
+        "scripts/ubuntu-update.sh",
+        "scripts/ubuntu-setup.sh",
+        "scripts/ubuntu-cleanup.sh"
       ]
     }
   ]

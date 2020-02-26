@@ -1,5 +1,5 @@
 #!/bin/bash -eu
-# update.sh
+# centos-update.sh
 
 echo "==> Removing/installing required packages"
 plog=/root/packer.log

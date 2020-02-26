@@ -1,7 +1,0 @@
-.vagrant/
-*.box
-*.ova
-*~
-crash.log
-output-*
-packer_cache/

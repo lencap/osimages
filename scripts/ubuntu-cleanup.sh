@@ -1,5 +1,5 @@
 #!/bin/bash -eu
-# cleanup.sh
+# ubuntu-cleanup.sh
 
 VM_NAME=${VM_NAME:-ubuntu}
 SSH_USER=${SSH_USERNAME:-vmuser}

@@ -1,5 +1,5 @@
 #!/bin/bash -eu
-# setup.sh
+# centos-setup.sh
 
 SSH_USER=${SSH_USERNAME:-vmuser}
 

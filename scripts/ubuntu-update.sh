@@ -1,5 +1,5 @@
 #!/bin/bash -eu
-# update.sh
+# ubuntu-update.sh
 
 echo "==> Disabling apt.daily.service & apt-daily-upgrade.service"
 systemctl stop apt-daily.timer apt-daily-upgrade.timer
