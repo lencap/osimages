@@ -9,15 +9,19 @@ These templates have been tested on macOS v10.15.3. Make sure you install at lea
 
 ## Getting Started
 Validate the specific template, then build the image. For instance:
-  * `packer validate ubuntu1804.json`
-  * `packer build ubuntu1804.json`
+```
+packer validate ubuntu1804.json
+packer build ubuntu1804.json
+```
 
 ## Test
 You can use the [vm utility](https://github.com/lencap/vm) to test the OVA image:
-  * `vm create dev1 output-virtualbox-iso/ubuntu1804.ova`
-  * `vm start dev1`
-  * `vm ssh dev1`
-  * `vm imgimp output-virtualbox-iso/ubuntu1804.ova`
+```
+vm create dev1 output-virtualbox-iso/ubuntu1804.ova
+vm start dev1
+vm ssh dev1
+vm imgimp output-virtualbox-iso/ubuntu1804.ova
+```
 
 ## Vagrant Options
 Alternatively, you can create Vagrant box images from the default OVA images these templates create by default. Although a sample Vagrantfile is included, how to do that Vagrant is not covered here - please read the Vagrant documentation. Of course, once you create Vagrant box files from these OVA one, you'll then be able to test with commands such as:
