@@ -15,7 +15,7 @@ packer build ubuntu1804.json
 ```
 
 ## Test
-You can use the [vm utility](https://github.com/lencap/vm) to test the OVA image:
+You can use the `vm` utility ([hosted here](https://github.com/lencap/vm)) to test the OVA image:
 ```
 vm create dev1 output-virtualbox-iso/ubuntu1804.ova
 vm start dev1
