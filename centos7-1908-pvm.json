@@ -1,6 +1,6 @@
 {
   "variables": {
-    "vm_name": "centos7.7.1908",
+    "vm_name": "centos7-1908",
     "ssh_user": "vagrant",
     "ssh_pass": "vagrant"
   },
