@@ -1,11 +1,11 @@
 ## OS Images
 
-For the moment this is __only for macOS__ hosts.
+These images are primarily for __macOS__, unless otherwise noted.
 
 These are [Packer](http://www.packer.io/) templates to create Ubuntu and CentOS Linux OS images. The primary target is [VirtualBox](https://www.virtualbox.org/) OVA images, but you can also create other types as described below.
 
 ## Prerequisites
-These templates have been tested on macOS v10.15.3. Make sure you install at least the following versions of these applications:
+These templates have been tested on macOS v10.15.4. Make sure you install at least the following versions of these applications:
   * VirtualBox v6.1.2
   * Packer v1.5.4
 
@@ -26,7 +26,7 @@ vm imgimp output-virtualbox-iso/ubuntu1804.ova
 ## Vagrant
 [Vagrant](https://www.vagrantup.com/intro/index.html) is another open-source software product for building and maintaining portable virtual software development environments. To use these OS images with Vagrant you can either:
 
-1. Run `vagran package [etc]` against a VM created from one of these default OVA images, or
+1. Run `vagrant package [etc]` against a VM created from one of these default OVA images, or
 
 2. Create a new template based on one of these templates, by adding a post-processors stanza, like this:
 ```
@@ -39,7 +39,7 @@ vm imgimp output-virtualbox-iso/ubuntu1804.ova
     }
   ]
 ```
-A Vagrantfile is included as example, but you can also read more on the Vagrant documentation.
+A Vagrantfile is included as example, but you'll need to read more of the Vagrant documentation.
 
 Of course, once you have a working Vagrantfile, you can test with commands such as:
 ```
@@ -50,7 +50,7 @@ vagrant box remove ubuntu1804
 ```
 
 ## Parallels
-Included there is also a [Packer](http://www.packer.io/) template to create a [Parallels](https://www.parallels.com/) [PVM](https://en.wikipedia.org/wiki/Parallel_Virtual_Machine) OS image, although this work is still in progress.
+Also included is a [Packer](http://www.packer.io/) template to create a [Parallels](https://www.parallels.com/) [PVM](https://en.wikipedia.org/wiki/Parallel_Virtual_Machine) OS image. Note that this is a still a workd in progress.
 
 To play with this further, make sure you install __Parallels v14.1.0__ or above, and the Parallels Virtualization SDK, as well as the Vagrant provider (if using Vagrant):
 ```
