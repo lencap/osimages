@@ -5,8 +5,10 @@ VM_NAME=${VM_NAME:-ubuntu}
 SSH_USER=${SSH_USERNAME:-vmuser}
 
 echo "==> Running apt update and cache cleanup"
-apt-get -y autoremove --purge
-apt-get clean
+# Checks work around a known time sync issue
+AptGet="apt-get -y -o Acquire::Check-Valid-Until=false -o Acquire::Check-Date=false"
+$AptGet autoremove --purge
+$AptGet clean
 
 echo "==> Clean up /tmp and hostname from system SSH keys"
 rm -rf /tmp/*

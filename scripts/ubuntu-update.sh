@@ -10,17 +10,20 @@ systemctl daemon-reload
 
 echo "==> Updating list of repositories"
 plog=/root/packer.log
-apt-get update > $plog
+# Checks work around a known time sync issue
+AptGet="apt-get -y -o Acquire::Check-Valid-Until=false -o Acquire::Check-Date=false"
+$AptGet update > $plog
 printf "\n\n\n" >> $plog
 if [[ $UPDATE =~ true || $UPDATE =~ 1 ]]; then
     echo "==> Upgrading packages"
-    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade >> $plog
+    Opt="-o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'"
+    $AptGet $Opt dist-upgrade >> $plog
 fi
 printf "\n\n\n" >> $plog
-apt-get -y install --no-install-recommends build-essential linux-headers-generic ssh curl vim dkms >> $plog
+$AptGet install --no-install-recommends build-essential linux-headers-generic ssh curl vim dkms >> $plog
 
 echo "==> Removing the release upgrader"
-apt-get -y purge ubuntu-release-upgrader-core
+$AptGet purge ubuntu-release-upgrader-core
 rm -rf /var/lib/ubuntu-release-upgrader
 rm -rf /var/lib/update-manager
 
