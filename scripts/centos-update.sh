@@ -7,7 +7,7 @@ yum -y remove aic94xx-firmware ivtv-firmware iwl*-firmware mariadb-libs >> $plog
 printf "\n\n\n" >> $plog
 yum -y install epel-release >> $plog
 # Avoid epel SSL cert issues from some networks
-sed -i 's/\(.*-http\)s/\1/' /etc/yum.repos.d/epel.repo
+sed -i 's/\(.*=http\)s/\1/' /etc/yum.repos.d/epel.repo
 sync
 yum -y install bind-utils binutils bzip2 curl lsof lvm2 make rsync sysstat tcpdump >> $plog
 sync
