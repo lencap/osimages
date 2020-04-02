@@ -5,7 +5,11 @@ echo "==> Removing/installing required packages"
 plog=/root/packer.log
 yum -y remove aic94xx-firmware ivtv-firmware iwl*-firmware mariadb-libs >> $plog
 printf "\n\n\n" >> $plog
-yum -y install epel-release bind-utils binutils bzip2 curl lsof lvm2 make rsync sysstat tcpdump >> $plog
+yum -y install epel-release >> $plog
+# Do epel over HTTP, to avoid SSL cert issues from some networks
+sed -i 's/\(.*=http\)s/\1/' /etc/yum.repos.d/epel.repo
+sync
+yum -y install bind-utils binutils bzip2 curl lsof lvm2 make rsync sysstat tcpdump >> $plog
 sync
 yum -y install dkms gcc iputils kernel-devel kernel-headers nmap-ncat postfix time vim-enhanced >> $plog
 printf "\n\n\n" >> $plog
