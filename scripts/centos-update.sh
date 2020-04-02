@@ -1,6 +1,9 @@
 #!/bin/bash -eu
 # centos-update.sh
 
+# Avoid SSL cert issues from some networks
+sed -i 's/\(.*-http\)s/\1/' /etc/yum.repos.d/epel.repo
+
 echo "==> Removing/installing required packages"
 plog=/root/packer.log
 yum -y remove aic94xx-firmware ivtv-firmware iwl*-firmware mariadb-libs >> $plog
