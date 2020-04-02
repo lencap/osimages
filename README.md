@@ -5,7 +5,7 @@ These images are primarily for __macOS__, unless otherwise noted.
 These are [Packer](http://www.packer.io/) templates to create Ubuntu and CentOS Linux OS images. The primary target is [VirtualBox](https://www.virtualbox.org/) OVA images, but you can also create other types as described below.
 
 ## Prerequisites
-These templates have been tested on macOS v10.15.4. Make sure you install at least the following versions of these applications:
+These templates have been tested on macOS v10.15.4, and some on Windows 10. Make sure you install at least the following versions of these applications:
   * VirtualBox v6.1.2
   * Packer v1.5.4
 
