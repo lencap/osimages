@@ -1,7 +1,7 @@
 {
   "variables": {
     "aws_access_key": "AKIAIOSFODNN7EXAMPLE",
-    "aws_ami_name": "",
+    "aws_ami_name": "centos71908ami",
     "aws_ami_users": ["111122223333", "444455556666", "777788889999"],
     "aws_secret_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
     "aws_security_group_ids": ["sg-bc97mysg", "sg-mysg8a8f"],

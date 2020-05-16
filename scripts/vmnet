@@ -1,6 +1,9 @@
 #!/bin/bash
 # /usr/local/bin/vmnet
-# Set up network and hostname. See https://github.com/lencap/vm
+# Set up networking for VMs managed by https://github.com/lencap/{vm|vmc} utilities
+# Set this file to run on boot with systemd:
+#   cp vmnet.service /etc/systemd/system/vmnet.service
+#   systemd enable vmnet.service
 
 osDist=$(hostnamectl | awk '/Operating System/ {print $3}' | tr 'A-Z' 'a-z')
 vmName=$(sudo VBoxControl guestproperty get '/vm/name' | awk '/^Value/ {print $2}')

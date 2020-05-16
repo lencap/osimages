@@ -3,32 +3,39 @@
 
 SSH_USER=${SSH_USERNAME:-vmuser}
 
-echo "==> Giving $SSH_USER sudo powers"
-echo "$SSH_USER        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers.d/$SSH_USER
+logger "==> Granting $SSH_USER sudo"
+echo "$SSH_USER     ALL=(ALL)     NOPASSWD: ALL" >> /etc/sudoers.d/$SSH_USER
 chmod 440 /etc/sudoers.d/$SSH_USER
 sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
 
-# Fix stdin not being a tty
-if grep -q "^mesg n$" /root/.profile && sed -i "s/^mesg n$/tty -s \\&\\& mesg n/g" /root/.profile; then
-    echo "==> Fixed stdin not being a tty."
-fi
-
-echo "==> Disabling daily apt unattended updates"
-echo 'APT::Periodic::Enable "0";' >> /etc/apt/apt.conf.d/10periodic
-
-echo "==> Installing VirtualBox Guest Additions"
+logger "==> Installing VirtualBox Guest Additions"
 apt-get -y install --no-install-recommends dkms
 mount -o loop /home/$SSH_USER/VBoxGuestAdditions.iso /mnt
 yes | sh /mnt/VBoxLinuxAdditions.run
 umount /mnt
 rm -f /home/$SSH_USER/VBoxGuestAdditions.iso
 
-echo "==> Set up /usr/local/bin/vmnet"
+logger "==> Installing /usr/local/bin/vmnet"
 mv /home/$SSH_USER/vmnet /usr/local/bin/
 chmod +x /usr/local/bin/vmnet
 chown root:root /usr/local/bin/vmnet
 
-echo "==> Updating SSH settings and $SSH_USER public key"
+logger "==> Enabling vmnet as a systemd service to run on bootup"
+cat <<EOF > /etc/systemd/system/vmnet.service
+# /etc/systemd/system/vmnet.service
+# Set up network for VMs managed by https://github.com/lencap/{vm|vmc} utilities
+[Unit]
+Description=Runs /usr/local/bin/vmnet
+After=network.target
+[Service]
+ExecStart=/usr/local/bin/vmnet
+[Install]
+WantedBy=multi-user.target
+EOF
+chmod 0644 /etc/systemd/system/vmnet.service
+systemctl enable vmnet.service
+
+logger "==> Updating SSH settings and $SSH_USER public key"
 echo "UseDNS no" >> /etc/ssh/sshd_config
 echo "GSSAPIAuthentication no" >> /etc/ssh/sshd_config
 mkdir -pm 700 /home/$SSH_USER/.ssh
@@ -43,28 +50,16 @@ EOF
 chmod 0600 /home/$SSH_USER/.ssh/authorized_keys
 chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/.ssh
 
-echo "Setting up bashrc and vimrc"
-echo "alias h='history'" >> /root/.bashrc
-cat <<EOF > /root/.vimrc
-syntax on
-hi comment ctermfg=blue
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-endif
-set ruler
-EOF
-chown -R root:root /root/.vimrc
+logger "==> Updating bashrc"
+printf "\nalias h='history'\n" >> /root/.bashrc
 
-echo "==> Setting rc.local to call vmnet on bootup"
-rcFile=/etc/rc.local
-if [[ -e $rcFile ]]; then
-    sed -i "/exit 0/d" $rcFile
-else
-    echo "#!/bin/bash" > $rcFile      # Ubuntu 18.04 doesn't have one
+logger "==> Disabling daily apt unattended updates"
+echo 'APT::Periodic::Enable "0";' >> /etc/apt/apt.conf.d/10periodic
+
+if test -e /root/.profile && \
+   grep -q "^mesg n$" /root/.profile && \
+   sed -i "s/^mesg n$/tty -s \\&\\& mesg n/g" /root/.profile; then
+    logger "==> Fixed stdin not being a tty"
 fi
-echo "logger \"Running /usr/local/bin/vmnet\"" >> $rcFile
-echo "/usr/local/bin/vmnet" >> $rcFile
-echo "exit 0" >> $rcFile
-chmod +x $rcFile
 
 exit 0

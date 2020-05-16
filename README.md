@@ -6,8 +6,8 @@ These are [Packer](http://www.packer.io/) templates to create Ubuntu and CentOS 
 
 ## Prerequisites
 These templates have been tested on macOS v10.15.4, and some on Windows 10. Make sure you install at least the following versions of these applications:
-  * VirtualBox v6.1.2
-  * Packer v1.5.4
+  * VirtualBox v6.1.6
+  * Packer v1.5.6
 
 ## Getting Started
 Validate a specific template, then build the image. For example:
@@ -34,7 +34,7 @@ vm imgimp output-virtualbox-iso/ubuntu1804.ova
     {
       "type": "vagrant",
       "keep_input_artifact": true,
-      "output": "./centos7.7.1908.box",
+      "output": "./centos72003.box",
       "vagrantfile_template": "./Vagrantfile"
     }
   ]
@@ -59,8 +59,8 @@ vagrant plugin install vagrant-parallels
 ```
 To build the images:
 ```
-packer validate centos7.7.1908-pvm.json   # Confirm template is good
-packer build centos7.7.1908-pvm.json      # Build CentOS 7.7.1908 Parallels PVM machine
+packer validate centos71908pvm.json   # Confirm template is good
+packer build centos71908pvm.json      # Build CentOS 7 1908 Parallels PVM machine
 ```
 
 ## Amazon
@@ -124,6 +124,6 @@ Tested on an Apple Mac running macOS v10.14.2, but should work on any Linux OS.
 
 Build image by doing the usual:
 ```
-packer validate centos7.7.1908-ami.json  # First, confirm template is good
-packer build centos7.7.1908-ami.json     # Build CentOS 7 AMI
+packer validate centos71908ami.json  # First, confirm template is good
+packer build centos71908ami.json     # Build CentOS 7 AMI
 ```

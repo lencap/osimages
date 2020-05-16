@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 # centos-update.sh
 
-echo "==> Removing/installing required packages"
+logger "==> Removing/installing required packages"
 plog=/root/packer.log
 yum -y remove aic94xx-firmware ivtv-firmware iwl*-firmware mariadb-libs >> $plog
 printf "\n\n\n" >> $plog
@@ -17,7 +17,7 @@ yum -y update >> $plog
 printf "\n\n\n" >> $plog
 yum clean all >> $plog
 
-echo "==> Updating grub settings"
+logger "==> Updating grub settings"
 if [[ $DISABLE_IPV6 =~ true || $DISABLE_IPV6 =~ 1 ]]; then
     sed -ri 's/^GRUB_CMDLINE_LINUX="(.*)"/GRUB_CMDLINE_LINUX="\1 ipv6.disable=1"/g' /etc/default/grub
     echo "AddressFamily inet" >> /etc/ssh/sshd_config
@@ -27,7 +27,7 @@ sed -ri 's/ rhgb quiet//' /etc/default/grub
 grub2-mkconfig -o /boot/grub2/grub.cfg
 
 echo "==> Shutting down the SSHD service and rebooting..."
-# This reboot is required because the kernel and grub were updated
+# This reboot is required because the kernel and grub were just updated
 sudo systemctl stop sshd
 nohup shutdown -r now < /dev/null > /dev/null 2>&1 &
 sleep 120
