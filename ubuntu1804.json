@@ -6,7 +6,9 @@
   },
   "builders": [
     {
+      "type": "virtualbox-iso",
       "headless": "true",
+      "guest_os_type": "Ubuntu_64",
       "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.4-server-amd64.iso",
       "iso_checksum": "e2ecdace33c939527cbc9e8d23576381c493b071107207d2040af72595f8990b",
       "iso_checksum_type": "sha256",
@@ -14,10 +16,9 @@
       "ssh_username": "{{user `ssh_user`}}",
       "ssh_password": "{{user `ssh_pass`}}",
       "ssh_timeout": "10m",
-      "type": "virtualbox-iso",
+      "ssh_handshake_attempts" : "20",
+      "ssh_pty": "true",
       "format": "ova",
-      "guest_os_type": "Ubuntu_64",
-      "boot_wait": "5s",
       "disk_size": "8192",
       "hard_drive_interface": "sata",
       "sata_port_count": "4",
@@ -50,21 +51,7 @@
         "<enter><wait>"
       ],
       "shutdown_command": "echo '{{user `ssh_pass`}}' | sudo -S shutdown -P now",
-      "memory": "2048",
-      "vboxmanage": [
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--nictype1",
-          "Virtio"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--natdnsproxy1",
-          "on"
-        ]
-      ]   
+      "memory": "1024"
     }
   ],
   "provisioners": [
