@@ -23,7 +23,7 @@ printf "\n\n\n" >> $plog
 $AptGet install --no-install-recommends build-essential linux-headers-generic ssh curl vim dkms >> $plog
 
 echo "==> Removing the release upgrader"
-$AptGet purge ubuntu-release-upgrader-core
+$AptGet purge ubuntu-release-upgrader-core >> $plog
 rm -rf /var/lib/ubuntu-release-upgrader
 rm -rf /var/lib/update-manager
 
@@ -37,6 +37,17 @@ sed -i '/^GRUB_TIMEOUT=/aGRUB_RECORDFAIL_TIMEOUT=0' /etc/default/grub
 sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet nosplash"/' /etc/default/grub
 sed -i '/^GRUB_HIDDEN_TIMEOUT=/d' /etc/default/grub
 update-grub
+
+UbuntuVer=$(hostnamectl | awk '/Operating System/ {print $4}')
+UbuntuVer=${UbuntuVer%%.*}
+if [[ "$UbuntuVer" -ge "20" ]]; then
+    echo "==> Uninstalling all SNAP installs, including its daemon"
+    sudo snap remove lxd
+    sudo snap remove core18
+    Ver=$(snap list | awk '/^snapd/ {print $3}')
+    sudo umount /snap/snapd/$Ver
+    $AptGet purge snapd >> $plog
+fi
 
 echo "==> Shutting down the SSHD service and rebooting..."
 # This reboot is required because the kernel and grub were updated
