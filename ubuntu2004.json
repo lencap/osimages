@@ -6,45 +6,31 @@
   },
   "builders": [
     {
-      "headless": "false",
+      "type": "virtualbox-iso",
+      "headless": "true",
+      "guest_os_type": "Ubuntu_64",
       "iso_url": "https://releases.ubuntu.com/20.04/ubuntu-20.04-live-server-amd64.iso",
       "iso_checksum": "caf3fd69c77c439f162e2ba6040e9c320c4ff0d69aad1340a514319a9264df9f",
       "iso_checksum_type": "sha256",
       "vm_name": "{{user `vm_name`}}",
       "ssh_username": "{{user `ssh_user`}}",
       "ssh_password": "{{user `ssh_pass`}}",
-      "ssh_pty": true,
-      "ssh_timeout": "20m",
-      "ssh_handshake_attempts": "20",
-      "type": "virtualbox-iso",
+      "ssh_timeout": "10m",
+      "ssh_handshake_attempts" : "20",
+      "ssh_pty": "true",
       "format": "ova",
-      "guest_os_type": "Ubuntu_64",
-      "boot_wait": "5s",
       "disk_size": "8192",
       "hard_drive_interface": "sata",
       "sata_port_count": "4",
       "http_directory": "http",
       "boot_command": [
-        "<enter><wait><enter><wait><f6><wait><esc><wait> ",
-        "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
-        "<enter><wait>"
+        "<esc> <wait><esc> <wait><f6> <wait><esc> <wait>",
+        "<bs><bs><bs><bs><bs>",
+        "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ",
+        "--- <enter>"
       ],
       "shutdown_command": "echo '{{user `ssh_pass`}}' | sudo -S shutdown -P now",
-      "memory": "2048",
-      "vboxmanage": [
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--nictype1",
-          "Virtio"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--natdnsproxy1",
-          "on"
-        ]
-      ]   
+      "memory": "1024"
     }
   ],
   "provisioners": [
@@ -52,7 +38,7 @@
       "type": "file",
       "source": "./scripts/vmnet",
       "destination": "/home/{{user `ssh_user`}}/"
-    },    
+    }, 
     {
       "type": "shell",
       "environment_vars": [
