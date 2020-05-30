@@ -1,11 +1,20 @@
 ## OS Images
 
-These images are primarily for __macOS__, unless otherwise noted.
+These [Packer](http://www.packer.io/) templates create Ubuntu and CentOS Linux OVA images primarily via the [VirtualBox](https://www.virtualbox.org/) [builder](https://www.packer.io/docs/builders/). However, the templates are straightforward enough to be used as a based for other work:
 
-These are [Packer](http://www.packer.io/) templates to create Ubuntu and CentOS Linux OS images. The primary target is [VirtualBox](https://www.virtualbox.org/) OVA images, but you can also create other types as described below.
+|Template Name|OS|Packer Builder|Status|
+|---|---|---|---|
+|ubuntu2004.json|Ubuntu 20.04|VirtualBox|Working|
+|ubuntu1804.json|Ubuntu 18.04|VirtualBox|Working|
+|centos81911.json|CentOS 8.1.1911|VirtualBox|Working|
+|centos72003.json|CentOS 7.8.2003|VirtualBox|Working|
+|centos71911.json|CentOS 7.7.1911|VirtualBox|Working|
+|centos71908.json|CentOS 7.7.1908|VirtualBox|Working|
+|centos71908pvm.json|CentOS 7.7.1908|Parallels|Untested|
+|centos71908ami.json|CentOS 7.7.1908|AWS|Untested|
 
 ## Prerequisites
-These templates have been tested on macOS v10.15.4, and some on Windows 10. Make sure you install at least the following versions of these applications:
+These templates have been tested on macOS v10.15.4, and some on Windows 10. You need at least the following versions of these applications:
   * VirtualBox v6.1.6
   * Packer v1.5.6
 
@@ -39,7 +48,7 @@ vm imgimp output-virtualbox-iso/ubuntu1804.ova
     }
   ]
 ```
-A Vagrantfile is included as example, but you'll need to read more of the Vagrant documentation.
+A Vagrantfile is included as example, but you'll need to read more of the Vagrant documentation for further use.
 
 Of course, once you have a working Vagrantfile, you can test with commands such as:
 ```
@@ -50,7 +59,7 @@ vagrant box remove ubuntu1804
 ```
 
 ## Parallels
-Also included is a [Packer](http://www.packer.io/) template to create a [Parallels](https://www.parallels.com/) [PVM](https://en.wikipedia.org/wiki/Parallel_Virtual_Machine) OS image. Note that this is a still a workd in progress.
+Also included is a [Packer](http://www.packer.io/) template to create a [Parallels](https://www.parallels.com/) [PVM](https://en.wikipedia.org/wiki/Parallel_Virtual_Machine) OS image. Note that this is a still a work in progress.
 
 To play with this further, make sure you install __Parallels v14.1.0__ or above, and the Parallels Virtualization SDK, as well as the Vagrant provider (if using Vagrant):
 ```
@@ -64,9 +73,9 @@ packer build centos71908pvm.json      # Build CentOS 7 1908 Parallels PVM machin
 ```
 
 ## Amazon
-[Packer](http://www.packer.io/) templates to create Amazon [AMIs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html).
+Also a [Packer](http://www.packer.io/) template to create an Amazon [AMIs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html).
 
-Tested on an Apple Mac running macOS v10.14.2, but should work on any Linux OS.
+Tested from macOS v10.14.2, but should work on any Linux OS.
 
 * On target AWS account, create a `packer` IAM user, and attach below `PackerBuilder` policy.
   ```
