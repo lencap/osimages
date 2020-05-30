@@ -9,7 +9,6 @@ chmod 440 /etc/sudoers.d/$SSH_USER
 sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
 
 logger "==> Installing VirtualBox Guest Additions"
-#
 mount -o loop /home/$SSH_USER/VBoxGuestAdditions.iso /mnt
 yes | sh /mnt/VBoxLinuxAdditions.run
 umount /mnt
